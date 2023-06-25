@@ -1,0 +1,34 @@
+version: "3.3"
+
+services:
+
+  certbot-test:
+    image: certbot/dns-cloudflare
+    command: certonly --non-interactive --dns-cloudflare --dns-cloudflare-credentials /opt/cloudflare/credentials --agree-tos -d ${SITE_URL} --email ${LETSENCRYPT_EMAIL} --server https://acme-v02.api.letsencrypt.org/directory --dry-run
+    volumes:
+      - ./config/cloudflare:/opt/cloudflare
+      - ./data/letsencrypt:/etc/letsencrypt
+      - ./data/letsencrypt/log:/var/log/letsencrypts
+    environment:
+      SITE_URL: "${SITE_URL}"
+
+  certbot-issue:
+    image: certbot/dns-cloudflare
+    command: certonly --non-interactive --dns-cloudflare --dns-cloudflare-credentials /opt/cloudflare/credentials --agree-tos -d ${SITE_URL} --email ${LETSENCRYPT_EMAIL} --server https://acme-v02.api.letsencrypt.org/directory
+    volumes:
+      - ./config/cloudflare:/opt/cloudflare
+      - ./data/letsencrypt:/etc/letsencrypt
+      - ./data/letsencrypt/log:/var/log/letsencrypts
+    environment:
+      SITE_URL: "${SITE_URL}"
+
+  certbot-renew:
+    image: certbot/dns-cloudflare
+    command: renew --non-interactive --no-self-upgrade --dns-cloudflare --dns-cloudflare-credentials /opt/cloudflare/credentials --agree-tos --email ${LETSENCRYPT_EMAIL} --server https://acme-v02.api.letsencrypt.org/directory
+    volumes:
+      - ./config/cloudflare:/opt/cloudflare
+      - ./data/letsencrypt:/etc/letsencrypt
+      - ./data/letsencrypt/log:/var/log/letsencrypts
+    environment:
+      SITE_URL: "${SITE_URL}"
+

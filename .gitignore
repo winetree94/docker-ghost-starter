@@ -1,0 +1,4 @@
+data/letsencrypt/*
+data/db/*
+data/ghost/*
+.env

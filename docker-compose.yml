@@ -1,0 +1,49 @@
+version: "3.3"
+
+services:
+
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - ghost
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./data/letsencrypt:/etc/letsencrypt
+    environment:
+      SITE_URL: "${SITE_URL}"
+
+  ghost:
+    image: ghost
+    restart: always
+    depends_on:
+      - db
+    links:
+      - db
+    expose:
+      - "2368"
+    environment:
+      url: "https://${SITE_URL}"
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: "${DATABASE_USER}"
+      database__connection__password: "${DATABASE_PASSWORD}"
+      database__connection__database: "${DATABASE_DATABASE}" 
+    volumes:
+      - ./data/ghost:/var/lib/ghost/content
+
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "${DATABASE_ROOT_PASSWORD}" 
+      MARIADB_USER: "${DATABASE_USER}" 
+      MARIADB_PASSWORD: "${DATABASE_PASSWORD}"
+      MARIADB_DATABASE: "${DATABASE_DATABASE}" 
+    volumes:
+      - ./data/db:/var/lib/mysql
+
